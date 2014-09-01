@@ -15,11 +15,10 @@ import xml.etree.cElementTree as ET
 
 def do_transform(xml_file):
     """ Process the XML file as a stream and yield a json. """
+    """ TODO: Use better variable names for loops. """
     for event, element in ET.iterparse(xml_file):
-        #title, acc, version, m_type, desc = '', '', '', '', ''
         if event == 'end':
             if element.tag == 'ClinVarSet':
-                #title, acc, version, m_type, desc = '', '', '', '', ''
                 for x in element:
                     if x.tag == 'Title':
                         title = x.text
