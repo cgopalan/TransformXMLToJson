@@ -18,7 +18,6 @@ python test_transform_clinvar.py
 Or if you have nosetests:
 
 ```
-
 nosetests -vv
 
 ```
