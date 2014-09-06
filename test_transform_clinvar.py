@@ -1,9 +1,9 @@
 import unittest
 import xml.etree.cElementTree as ET
 
-SOURCE_XML_FILE = 'ClinVarFullRelease_2014-08.xml'
+SOURCE_XML_FILE = 'ClinVarFull.xml'
 
-OUTPUT_FILE = 'clinvar_json.txt'
+OUTPUT_FILE = 'ClinVarFull.json'
 
 class TransformClinvarTests(unittest.TestCase):
     """ Tests for transform. """
@@ -12,6 +12,7 @@ class TransformClinvarTests(unittest.TestCase):
         """ Test that all the ReferenceClinVarAssertion objects were transformed. """
         num_xml_objects = count_xml_objects(SOURCE_XML_FILE)
         num_json_objects = count_json_objects(OUTPUT_FILE)
+        print(num_xml_objects, num_json_objects)
         self.assertEqual(num_xml_objects, num_json_objects)
 
 

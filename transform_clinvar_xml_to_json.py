@@ -15,38 +15,39 @@ import xml.etree.cElementTree as ET
 
 def do_transform(xml_file):
     """ Process the XML file as a stream and yield a json. """
-    """ TODO: Use better variable names for loops. """
     for event, element in ET.iterparse(xml_file):
-        if event == 'end':
-            if element.tag == 'ClinVarSet':
-                for x in element:
-                    if x.tag == 'Title':
-                        title = x.text
-                    if x.tag == 'ReferenceClinVarAssertion':
-                        for y in x:
-                            if y.tag == 'ClinVarAccession':
-                                acc = y.attrib['Acc']
-                                version = int(y.attrib['Version'])
-                            if y.tag == 'ClinicalSignificance':
-                                for z in y:
-                                    if z.tag == 'Description':
-                                        desc = z.text
-                            if y.tag == 'MeasureSet':
-                                for z in y:
-                                    if z.tag == 'Measure':
-                                        m_type = z.attrib['Type']
-                                        for a in z:
-                                            if a.tag == 'Name':
-                                                for b in a:
-                                                    if b.tag == 'ElementValue':
-                                                        p_name = b.attrib['Type']
-                                            if a.tag == 'AttributeSet':
-                                                hgvs_list = []
-                                                for b in a:
-                                                    if b.tag == 'Attribute' and 'HGVS' in b.attrib['Type']:
-                                                        hgvs_list.append(b.text)
-                # Yield the JSON string.
-                yield make_json(title, acc, version, p_name, m_type, desc, hgvs_list)
+        if event == 'end' and element.tag == 'ClinVarSet':
+            # initialize vars
+            title, acc, version, p_name, m_type, desc = '', '', '', '', '', ''
+            hgvs_list = None
+
+            e_title = element.find('./Title')
+            if e_title is not None:
+                title = e_title.text
+
+            e_clinvaracc = element.find('./ReferenceClinVarAssertion/ClinVarAccession')
+            if e_clinvaracc is not None:
+                acc = e_clinvaracc.attrib['Acc']
+                version = int(e_clinvaracc.attrib['Version']) if e_clinvaracc.attrib['Version'] else ''
+
+            e_elemval = element.find('./ReferenceClinVarAssertion/MeasureSet/Measure/Name/ElementValue')
+            if e_elemval is not None:
+                p_name = e_elemval.attrib['Type']
+
+            e_hgvs = element.findall('./ReferenceClinVarAssertion/MeasureSet/Measure/AttributeSet/Attribute')
+            if e_hgvs is not None:
+                hgvs_list = [x.text for x in e_hgvs if 'HGVS' in x.attrib['Type']]
+
+            e_type = element.find('./ReferenceClinVarAssertion/MeasureSet/Measure')
+            if e_type is not None:
+                m_type = e_type.attrib['Type']
+
+            e_clinsig = element.find('./ReferenceClinVarAssertion/ClinicalSignificance/Description')
+            if e_clinsig is not None:
+                desc = e_clinsig.text
+
+            # Yield the JSON string.
+            yield make_json(title, acc, version, p_name, m_type, desc, hgvs_list)
 
 
 def make_json(title, acc, version, p_name, m_type, desc, hgvs_list):
